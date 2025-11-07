@@ -5,9 +5,16 @@ import dotenv from "dotenv";
 import orderRoutes from "./routes/orderRoutes.js";
 
 dotenv.config();
+const allowedOrigins = [
+  "https://elfaropanaderia.vercel.app/", // tu dominio de Vercel
+  "http://localhost:5000" // para desarrollo local 
+];
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true, 
+}));
 app.use(express.json());
 
 // Rutas
