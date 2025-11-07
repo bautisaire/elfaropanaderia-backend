@@ -28,6 +28,13 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("🍞 API funcionando correctamente 🚀");
 });
+//forzando cabeceras
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://elfaropanaderia.vercel.app");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 // Rutas
 app.use("/api/orders", orderRoutes);
 
