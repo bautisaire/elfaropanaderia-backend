@@ -13,8 +13,13 @@ const allowedOrigins = [
 const app = express();
 app.use(
   cors({
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
+    origin: function (origin, callback) {
+      // Permitir solicitudes sin origen (por ejemplo, Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS no permitido para este dominio: " + origin));
+    },
+    methods: ["GET", "POST", "OPTIONS"],
     credentials: true,
   })
 );
