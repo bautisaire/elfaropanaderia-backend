@@ -24,7 +24,6 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type");
 
-  // 👇 Si es preflight, responder antes de pasar a las rutas
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
@@ -50,9 +49,11 @@ app.get("/", (req, res) => {
 // ===============================
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log("✅ Conectado a MongoDB Atlas");
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`🚀 Servidor backend en puerto ${PORT}`));
-  })
+  .then(() => console.log("✅ Conectado a MongoDB Atlas"))
   .catch((err) => console.error("❌ Error al conectar MongoDB:", err));
+
+// ===============================
+// Iniciar servidor (fuera del then)
+// ===============================
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Servidor backend en puerto ${PORT}`));
