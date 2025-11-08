@@ -5,55 +5,45 @@ import dotenv from "dotenv";
 import orderRoutes from "./routes/orderRoutes.js";
 
 dotenv.config();
-const app = express();
-
-// ===============================
-// 🧩 CORS CONFIG
-// ===============================
 const allowedOrigins = [
-  "https://elfaropanaderia.vercel.app",
-  "http://localhost:5173",
+  "https://elfaropanaderia.vercel.app", // tu dominio de Vercel
+  "http://localhost:5000" // para desarrollo local 
 ];
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
-
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
-
-// ===============================
-// Middlewares
-// ===============================
+const app = express();
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Permitir solicitudes sin origen (por ejemplo, Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("CORS no permitido para este dominio: " + origin));
+    },
+    methods: ["GET", "POST", "OPTIONS"],
+    credentials: true,
+  })
+);
 app.use(express.json());
-app.use("/api/orders", orderRoutes);
-
-// ===============================
-// Ruta raíz de prueba
-// ===============================
+// ✅ Ruta de prueba
 app.get("/", (req, res) => {
   res.send("🍞 API funcionando correctamente 🚀");
 });
+// Rutas
+app.use("/api/orders", orderRoutes);
 
-// ===============================
-// Conexión a MongoDB
-// ===============================
+// Conectar a MongoDB
+// mongoose
+//   .connect(process.env.MONGO_URI)
+//   .then(() => {
+//     console.log("✅ Conectado a MongoDB Atlas");
+//     app.listen(5000, () => console.log("🚀 Servidor backend en puerto 5000"));
+//   })
+//   .catch((err) => console.error("❌ Error al conectar MongoDB:", err));
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("✅ Conectado a MongoDB Atlas"))
+  .then(() => {
+    console.log("✅ Conectado a MongoDB Atlas");
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`🚀 Servidor backend en puerto ${PORT}`));
+  })
   .catch((err) => console.error("❌ Error al conectar MongoDB:", err));
-
-// ===============================
-// Iniciar servidor (fuera del then)
-// ===============================
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Servidor backend en puerto ${PORT}`));
