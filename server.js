@@ -13,6 +13,9 @@ app.use(express.json());
 // Rutas
 app.use("/api/orders", orderRoutes);
 
+app.get("/", (req, res) => {
+  res.send("🚀 Servidor funcionando correctamente!");
+});
 // Conectar a MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
